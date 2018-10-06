@@ -9,13 +9,8 @@ class App extends Component {
     super(props);
 
     this.state = {
-      l: 0,
-      a: 0,
-      b: 0,
-
-      r: 0,
-      y: 0,
-      b: 0
+      LAB: { l: 0, a: 0, b: 0 },
+      RYB: { r: 0, y: 0, b: 0 }
     };
   }
 
@@ -24,7 +19,7 @@ class App extends Component {
   }
 
   updateOutput() {
-    const { l, a, b } = this.state;//extract lab values from states
+    const { l, a, b } = this.state.LAB;//extract lab values from state
     const output = {//initialize an object for our output
       r: 0, y: 0, b: 0
     };
@@ -38,12 +33,14 @@ class App extends Component {
      * and the output values will be updated in the UI
      */
 
-    this.setState(output);
+    this.setState({RYB: output});
   }
 
   render() {
     const self = this;
-    const { r, y, b } = this.state;
+    const { r, y, b } = this.state.RYB;
+
+    console.log(this.state.LAB, this.state.RYB);
 
     return (
       <div className='App'>
@@ -53,9 +50,9 @@ class App extends Component {
         <div className={'input'}>
           <h3>{'LAB Values'}</h3>
           <div>
-            <Value label={'L:'} onChange={(value) => this.setState({l: value})}/>
-            <Value label={'A:'} onChange={(value) => this.setState({a: value})}/>
-            <Value label={'B:'} onChange={(value) => this.setState({b: value})}/>
+            <Value label={'L:'} onChange={(value) => self.setState({LAB: Object.assign({}, self.state.LAB, {l: value})})}/>
+            <Value label={'A:'} onChange={(value) => self.setState({LAB: Object.assign({}, self.state.LAB, {a: value})})}/>
+            <Value label={'B:'} onChange={(value) => self.setState({LAB: Object.assign({}, self.state.LAB, {b: value})})}/>
           </div>
         </div>
 

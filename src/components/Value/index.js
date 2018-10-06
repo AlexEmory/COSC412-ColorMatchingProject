@@ -14,12 +14,17 @@ export default function Value(props) {
     console.warn('change handler provided to readonly Value. Handler will not be used.');
   }
 
+  function handleChange(event) {
+    const value = parseInt(event.target.value);
+    props.onChange(value);
+  };
+  
   return (
     <div className={'value'}>
       <label>{props.label}</label>
       {
         (value === undefined || value === null) ? (
-          <input type="number" onChange={(event) => props.onChange(event.target.value)} min={min} max={max}/>
+          <input type="number" onChange={handleChange} min={min} max={max}/>
         ) : (
           <span>{value}</span>
         )
