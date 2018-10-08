@@ -10,6 +10,7 @@
     "react-scripts": "2.0.4"
   },
   "scripts": {
+    "serve": "node server.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
