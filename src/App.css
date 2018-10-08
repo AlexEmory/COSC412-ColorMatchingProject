@@ -30,14 +30,19 @@ h3 {
 }
 
 .value label {
-  width: 3em;
+  width: 4em;
   margin-right: .3125em;
+}
+
+.value input {
+  outline: none;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 1);
 }
 
 .value input,
 .value span {
   display: block;
   text-align: left;
-  min-width: 4em;
-  max-width: 10em;
+  width: 6em;
 }
