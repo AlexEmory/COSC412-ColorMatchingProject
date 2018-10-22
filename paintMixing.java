@@ -2,11 +2,11 @@ import java.util.*;
 public class paintMixing{
   public static void main(String[] args){
     Scanner input=new Scanner(System.in);
-    double[] paintC={90,50,10,59};
-    double[] paintM={0,80,75,50};
-    double[] paintY={0,25,55,0};
-    double[] paintK={10,5,2,90};
-    double[] spectColor={50,50,50,50};
+    double[] paintC={39,0,46,59}; //hlorium Oxide
+    double[] paintM={3,1,0,73}; //Neutral Gray
+    double[] paintY={19,0,79,58}; //Green Gold
+    double[] paintK={3,1,0,73}; //Neutral Gray
+    double[] spectColor={36,0,63,69};
     double[] solution;
     
     System.out.println("Enter the CMYK values for the paint with the most Cyan");
@@ -36,25 +36,38 @@ public class paintMixing{
     
     input.close();
     
-    System.out.print("The ratios are: ");
-    solution=paintApprox4D(spectColor,paintC,paintM,paintY,paintK,10);
-    System.out.println(solution[0]+" "+solution[1]+" "+solution[2]+" "+solution[3]);
-    
-    System.out.print("The final color arrived at was: ");
-    System.out.print(solution[0]*paintC[0]+solution[1]*paintM[0]+solution[2]*paintY[0]+solution[3]*paintK[0]+" ");
-    System.out.print(solution[0]*paintC[1]+solution[1]*paintM[1]+solution[2]*paintY[1]+solution[3]*paintK[1]+" ");
-    System.out.print(solution[0]*paintC[2]+solution[1]*paintM[2]+solution[2]*paintY[2]+solution[3]*paintK[2]+" ");
-    System.out.print(solution[0]*paintC[3]+solution[1]*paintM[3]+solution[2]*paintY[3]+solution[3]*paintK[3]+" ");
+    try{
+      solution=paintApprox4D(spectColor,paintC,paintM,paintY,paintK,50);
+      if(solution[0]==1){}
+      System.out.print("The ratios are: ");
+      System.out.println(solution[0]+" "+solution[1]+" "+solution[2]+" "+solution[3]);
+      
+      System.out.print("The final color arrived at was: ");
+      System.out.print(solution[0]*paintC[0]+solution[1]*paintM[0]+solution[2]*paintY[0]+solution[3]*paintK[0]+" ");
+      System.out.print(solution[0]*paintC[1]+solution[1]*paintM[1]+solution[2]*paintY[1]+solution[3]*paintK[1]+" ");
+      System.out.print(solution[0]*paintC[2]+solution[1]*paintM[2]+solution[2]*paintY[2]+solution[3]*paintK[2]+" ");
+      System.out.print(solution[0]*paintC[3]+solution[1]*paintM[3]+solution[2]*paintY[3]+solution[3]*paintK[3]+" ");
+    }
+    catch(NullPointerException e){
+      System.out.println("The Colors You Have Entered are Unacceptable");
+      if(paintC[0]<spectColor[0])
+        System.out.println("The C value for the Cyan Paint is too low");
+      if(paintM[1]<spectColor[1])
+        System.out.println("The M value for the Magenta Paint is too low");
+      if(paintY[2]<spectColor[2])
+        System.out.println("The Y value for the Yellow Paint is too low");
+      if(paintK[3]<spectColor[3])
+        System.out.println("The K value for the White Paint is too low");
+    }
   }
   
   public static double[] paintApprox4D(double[] spectColor, double[] cyanBase, double[] magentaBase, double[] yellowBase, double[] keyBase, int pass){
-    //CMYK colors for scanned color, CMYK colors for majority cyan color, CMYK magenta, CMYK yellow, CMYK white or black, number of passes
+//CMYK colors for scanned color, CMYK colors for majority cyan color, CMYK magenta, CMYK yellow, CMYK white or black, number of passes
     if(spectColor[0]>cyanBase[0]||spectColor[1]>magentaBase[1]||spectColor[2]>yellowBase[2]||spectColor[3]>keyBase[3]) //cyanBase is the vector with highest x-value
       return null;
     double temp;
     double[] solution={0,0,0,0};
     double[] currentHue=new double[4];
-    
     for(int x=0;x<pass;x++){
       temp=(spectColor[0]-currentHue[0])/cyanBase[0];      //Set x-Color to spectColor value based on cyanBase
       solution[0]+=temp;
