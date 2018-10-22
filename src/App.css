@@ -46,3 +46,16 @@ h3 {
   text-align: left;
   width: 6em;
 }
+
+.color-circle-container {
+  position: absolute;
+}
+
+.color-circle {
+  width: 20px;
+  height: 76px;
+  display: block;
+  position: relative;
+  right: -169px;
+  top: -5px;
+}
