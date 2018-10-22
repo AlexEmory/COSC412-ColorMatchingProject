@@ -42,20 +42,20 @@ class App extends Component {
 	let var_Y = ( lab[0] + 16 ) / 116
 	let var_X = lab[1] / 500 + var_Y
 	let var_Z = var_Y - lab[2] / 200
-	
-	if ( Math.pow(var_Y,3)  > 0.008856 ) 
+
+	if ( Math.pow(var_Y,3)  > 0.008856 )
 		var_Y = Math.pow(var_Y,3)
-	else                       
+	else
 		var_Y = ( var_Y - 16 / 116 ) / 7.787
-	if ( Math.pow(var_X,3)  > 0.008856 ) 
+	if ( Math.pow(var_X,3)  > 0.008856 )
 		var_X = Math.pow(var_X,3)
-	else                       
+	else
 		var_X = ( var_X - 16 / 116 ) / 7.787
-	if ( Math.pow(var_Z,3)  > 0.008856 ) 
+	if ( Math.pow(var_Z,3)  > 0.008856 )
 		var_Z = Math.pow(var_Z,3)
-	else                       
+	else
 		var_Z = ( var_Z - 16 / 116 ) / 7.787
-	
+
 	X = var_X * Reference-X
 	Y = var_Y * Reference-Y
 	Z = var_Z * Reference-Z
@@ -65,48 +65,48 @@ class App extends Component {
 
   updateOutput() {
     const { l, a, b } = this.state.LAB;//extract lab values from state
-	const self = this;
-	const cmykOutput = {//initialize an object for our cmykOutput
+    const self = this;
+    const cmykOutput = {//initialize an object for our cmykOutput
       c: 0, m: 0, y: 0, k: 0
     };
-	const ratioOutput = {//initialize an object for our ratioOutput
+    const ratioOutput = {//initialize an object for our ratioOutput
       cR: 0, mR: 0, yR: 0, kR: 0, wR: 0
     };
-	
-    let cmyk = this.lab2cmyk([l, a, b]);
-	cmyk = cmyk.map(n => self.round(n));
-	let gcd;
-	let black;
-	let white;
-	cmyk[0] = Math.floor(cmyk[0]);
-	cmyk[1] = Math.floor(cmyk[1]);
-	cmyk[2] = Math.floor(cmyk[2]);
-	cmyk[3] = Math.floor(cmyk[3]);
+
+    const cmyk = this.lab2cmyk([l, a, b]).map(n => self.round(n));
+    let gcd;
+    let black;
+    let white;
+
+    cmyk[0] = Math.floor(cmyk[0]);
+    cmyk[1] = Math.floor(cmyk[1]);
+    cmyk[2] = Math.floor(cmyk[2]);
+    cmyk[3] = Math.floor(cmyk[3]);
+
     cmykOutput.c = Math.floor(cmyk[0]);
     cmykOutput.m = Math.floor(cmyk[1]);
     cmykOutput.y = Math.floor(cmyk[2]);
-	cmykOutput.k = Math.floor(cmyk[3]);
-	if(cmyk[3] > 50){
-		black = (Math.floor(cmyk[3]) - 50)*2;
-		gcd = this.gcd_more_than_two_numbers([cmyk[0],cmyk[1],cmyk[2],black]);
-	
-	}	
-	else if(cmyk[3] < 50){
-		white =  100 - Math.ceil(cmyk[3]);
-		gcd = this.gcd_more_than_two_numbers([cmyk[0],cmyk[1],cmyk[2],white]);
-	}
-	
-	//gcd = this.gcd_more_than_two_numbers([cmyk[0],cmyk[1],cmyk[2],cmyk[3]]);
-	ratioOutput.cR = Math.floor(cmyk[0])/gcd;
+    cmykOutput.k = Math.floor(cmyk[3]);
+
+    if (cmyk[3] > 50) {
+      black = (Math.floor(cmyk[3]) - 50)*2;
+      gcd = this.gcd_more_than_two_numbers([...cmyk, black]);
+    } else if (cmyk[3] < 50) {
+    	white =  100 - Math.ceil(cmyk[3]);
+    	gcd = this.gcd_more_than_two_numbers([...cmyk, white]);
+    } else {
+      white = 1;
+      black = 1;
+      gcd = this.gcd_more_than_two_numbers([...cmyk, white, black]);
+    }
+
+    //gcd = this.gcd_more_than_two_numbers([cmyk[0],cmyk[1],cmyk[2],cmyk[3]]);
+    ratioOutput.cR = Math.floor(cmyk[0])/gcd;
     ratioOutput.mR = Math.floor(cmyk[1])/gcd;
     ratioOutput.yR = Math.floor(cmyk[2])/gcd;
-	//ratioOutput.kR = Math.floor(cmyk[3])/gcd;	
     ratioOutput.kR = Math.floor(black)/gcd;
-	//if(){
-		
-	//}else{
 		ratioOutput.wR = Math.floor(white)/gcd;
-	//}
+
 
     this.setState({CMYK: cmykOutput, Ratio: ratioOutput});
   }
@@ -119,8 +119,8 @@ class App extends Component {
   }
   //https://www.w3resource.com/javascript-exercises/javascript-math-exercise-9.php
   gcd_more_than_two_numbers(input) {
-  if (toString.call(input) !== "[object Array]")  
-        return  false;  
+  if (toString.call(input) !== "[object Array]")
+        return  false;
   var len, a, b;
 	len = input.length;
 	if ( !len ) {
@@ -135,7 +135,7 @@ class App extends Component {
 }
 
 gcd_two_numbers(x, y) {
-  if ((typeof x !== 'number') || (typeof y !== 'number')) 
+  if ((typeof x !== 'number') || (typeof y !== 'number'))
     return false;
   x = Math.abs(x);
   y = Math.abs(y);
@@ -188,17 +188,16 @@ gcd_two_numbers(x, y) {
 		<div className={'output'}>
           <h3>{'Mix Ratio'}</h3>
           <div>
-			{cR>0?<Value min={0} max={100} label={'Cyan:'} value={cR}/>:null}
-            {mR>0?<Value min={0} max={100} label={'Magenta:'} value={mR}/>:null}
-            {yR>0?<Value min={0} max={100} label={'Yellow:'} value={yR}/>:null}
-			{kR>0?<Value min={0} max={100} label={'Black:'} value={kR}/>:null}
-			{wR>0?<Value min={0} max={100} label={'White:'} value={wR}/>:null}
+            {cR>0?<div>{`${cR} part(s) Cyan`}</div>:null}
+            {mR>0?<div>{`${mR} part(s) Magenta`}</div>:null}
+            {yR>0?<div>{`${yR} part(s) Yellow`}</div>:null}
+            {kR>0?<div>{`${kR} part(s) Black`}</div>:null}
+            {wR>0?<div>{`${wR} part(s) White`}</div>:null}
           </div>
         </div>
       </div>
     );
   }
-  
+
 }
 export default App;
-
