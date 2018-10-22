@@ -4,7 +4,7 @@ import './App.css';
 import lab2xyz from 'pure-color/convert/lab2xyz';
 import xyz2rgb from 'pure-color/convert/xyz2rgb';
 import rgb2cmyk from 'pure-color/convert/rgb2cmyk';
-//import rgb2ryb from 'node-rgb2ryb/rgb2ryb';
+import cmyk2rgb from 'pure-color/convert/cmyk2rgb';
 
 import Value from './components/Value';
 import { isEqual } from 'lodash';
@@ -160,7 +160,8 @@ gcd_two_numbers(x, y) {
     const { c, m, y, k } = this.state.CMYK;
     const { cR, mR, yR, kR, wR } = this.state.Ratio;
 
-    //console.log(this.state.LAB, this.state.CMYK);
+    //use this to display the color
+    const rgb = cmyk2rgb([c, m, y, k]);
 
     return (
       <div className='App'>
@@ -169,6 +170,7 @@ gcd_two_numbers(x, y) {
         </header>
         <div className={'input'}>
           <h3>{'LAB Values'}</h3>
+          <div style={{position: 'absolute'}}><div className="color-circle" style={{backgroundColor: `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`}}/></div>
           <div>
             <Value label={'L:'} min={0} max={100} onChange={(value) => self.setState({LAB: Object.assign({}, self.state.LAB, {l: value})})}/>
             <Value label={'A:'} min={-128} max={127} onChange={(value) => self.setState({LAB: Object.assign({}, self.state.LAB, {a: value})})}/>
