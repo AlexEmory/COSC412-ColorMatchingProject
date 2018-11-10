@@ -1,4 +1,4 @@
-var colorList  = {
+export var colorList  = {
     LightBlue = {
         name : "LightBlue",
         L : 51.31,
