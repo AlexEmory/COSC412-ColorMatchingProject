@@ -22,6 +22,7 @@ function findLowest(desiredColor){
 			clr = colorList[i];
 		}
 	}
+	//console.log(clr.name);
 	return clr;
 	
 }
@@ -29,7 +30,9 @@ function findLowest(desiredColor){
 //BODY logic for the body where we brute force all the colors to see if it lowers 
 //the delta E value
 //var wantedColor = {L : 69.48, A : -32.09, B: 14.8, parts:0};//i guess we just ask for the LAB input
-var wantedColor = {L : 42.82, A : -10.01, B : 10.12, parts : 0};
+//var wantedColor = {L : 62.82, A : -5.01, B : 20.12, parts : 0};//GIVES SOMETHING
+//var wantedColor = {L : 32.82, A : 60.01, B : 20.12, parts : 0};//delta  102 to 100
+var wantedColor = {L : 32.00, A : -32.00, B : 32.00, parts : 0};
 //Here, check to see if the color is not obtainable from the set of Testor’s paint
 
 //console.log(colorList);
@@ -41,7 +44,7 @@ var wantedColor = {L : 42.82, A : -10.01, B : 10.12, parts : 0};
 var lowest = findLowest(wantedColor);//this should be a color object
 lowest.parts++;
 var delta = deltaE(wantedColor, lowest);
-//console.log(delta);
+console.log(delta);
 
 var recipe = {lowest};//this is the list of colors to add
 var sumL = lowest.L, sumA = lowest.A, sumB = lowest.B;
@@ -49,7 +52,7 @@ var num = 1;//number of
 
 var ctr = 0; //this is purely for testing to make sure something doesn’t run infinitely
 //now we will go through the process of trying to get under delta e = 7
-while(delta >= 7 && ctr < 100){
+while(delta >= 7 && ctr < 10000){
 	//console.log("test");
 
     //average the list of colors that we have.  
@@ -87,6 +90,7 @@ while(delta >= 7 && ctr < 100){
 			ctr++;
             num++;
 			var cond = 1;
+			delta = tempDelta;
 			while (cond){
 				tempL += colorList[c].L;
 				tempA += colorList[c].A;
@@ -101,9 +105,10 @@ while(delta >= 7 && ctr < 100){
 					colorList[c].parts++;
 					sumL += colorList[c].L;
 					sumA += colorList[c].A;
-					sumB += colorList[c].B
+					sumB += colorList[c].B;
 					num++;
-                    ctr++;
+					ctr++;
+					tempDelta = tempDelta2;
                 }
 				else
 					cond = 0;
