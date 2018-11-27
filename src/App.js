@@ -16,9 +16,10 @@ class App extends Component {
 
     this.state = {
       LAB: { l: 0, a: 0, b: 0 },
-	  parts: []
-    };
-	
+	  parts: [],
+	  eLimit: {limit: 2},
+	  finalDE: { DE: 0}
+    };	
 
     this.updateOutput = this.updateOutput.bind(this);
   }
@@ -29,8 +30,10 @@ class App extends Component {
   
   updateOutput() {
     const { l, a, b } = this.state.LAB;//extract lab values from state
+	const {limit} = this.state.eLimit;//extract deltaE limit from state
 	let wantedColor = {L: l || 0, A: a || 0, B: b || 0, parts : 0};
 	let partsCount = {};
+	let eLimit = limit;
 	//wantedColor = {L : 72.98, A : -36.06, B : 49.12, parts : 0};
 	let lowest = findLowest(wantedColor);//this should be a color object
 	partsCount[lowest.name] = 1;
@@ -41,8 +44,6 @@ class App extends Component {
 	let num = 1;//number of		
 	let currColor = {L:(sumL/num), A:(sumA/num), B:(sumB/num), parts : 0};	
 	let ctr = 0; //this is purely for testing to make sure something doesn’t run infinitely
-	
-	//now we will go through the process of trying to get under delta e = 7
 	
 	do{				
 		delta = deltaE(wantedColor, currColor);
@@ -56,7 +57,7 @@ class App extends Component {
 			let tempDelta = deltaE(wantedColor, tempColor);	
 	
 			//if something helps, apply it again
-			if(tempDelta < delta){
+			if(!(delta <= eLimit) && tempDelta < delta){
 				if(partsCount.hasOwnProperty(gloss[c].name)){
 					partsCount[gloss[c].name]++;
 				}else{
@@ -97,26 +98,27 @@ class App extends Component {
 			}	
 		}	
 		ctr++;	
-	}while(delta >= 7 && ctr < 10000);
+	}while((delta >= eLimit) && ctr < 100);
 	
 	console.log("Run Count: " + ctr );
 	
 	//for now, i didn't add the part where we add the base color again after each iteration
-	//Don't we not have to do this as we add it in through the loops anyway?
-	
-	//now we will add white or black to see if that helps.  
-	
-	//i dont know the values of the black or white that we are using so we could add that later
-	
+	//Don't we not have to do this as we add it in through the loops anyway?	
+	//now we will add white or black to see if that helps.  	
+	//i dont know the values of the black or white that we are using so we could add that later	
 	//hopefully, you get the jist of how i test and add a color
 	
 	console.log("Current Color: " + currColor.L + " " + currColor.A + " " + currColor.B);
 	console.log("dE: " + deltaE(wantedColor, currColor));
+	
 	let parts = [];
 	for(let name in partsCount){
 		parts.push({name, parts:partsCount[name]});
 	};
 	this.setState({parts});
+	
+	let finalDE = {DE: delta};
+	this.setState({finalDE});
   }
 
   componentDidUpdate() {
@@ -128,11 +130,12 @@ class App extends Component {
   }
 
   render() {
-	  console.log(this.state.parts);
     const self = this;
     //use this to display the color
 	const {l, a, b} = this.state.LAB;
 	const rgb = xyz2rgb(lab2xyz([l, a, b]));
+	const finalDE = this.state.finalDE.DE;
+
     return (
       <div className='App'>
         <header>
@@ -145,18 +148,23 @@ class App extends Component {
             <Value label={'L:'} min={0} max={100} onChange={(value) => self.setState({LAB: Object.assign({}, self.state.LAB, {l: value})})}/>
             <Value label={'A:'} min={-128} max={127} onChange={(value) => self.setState({LAB: Object.assign({}, self.state.LAB, {a: value})})}/>
             <Value label={'B:'} min={-128} max={127} onChange={(value) => self.setState({LAB: Object.assign({}, self.state.LAB, {b: value})})}/>
-          </div>
+		  </div>
+		  <div>
+			<Value label={'dE limit:'} min={0} onChange={(value) => self.setState({eLimit: Object.assign({}, self.state.eLimit, {limit: value})})}/>
+		  </div>
         </div>
-
+		
 		<div className={'output'}>
           <h3>{'Mix Ratio'}</h3>
+			dE of mixture: {finalDE}
+		  <div>
 			{this.state.parts.map(color => {
           return (
 		  <span key={color.name}>
-            {color.parts} part(s) {color.name} 
+            {color.parts} part(s) - {color.name}<br/>
           </span>)
 			})}
-			
+		  </div>	
         </div>
       </div>
     );
