@@ -3,8 +3,8 @@ import './App.css';
 
 import lab2xyz from 'pure-color/convert/lab2xyz';
 import xyz2rgb from 'pure-color/convert/xyz2rgb';
-import rgb2cmyk from 'pure-color/convert/rgb2cmyk';
-import cmyk2rgb from 'pure-color/convert/cmyk2rgb';
+import {deltaE , findLowest} from './painMixing';
+import {gloss} from './colorList';
 
 import Value from './components/Value';
 import { isEqual } from 'lodash';
@@ -16,9 +16,9 @@ class App extends Component {
 
     this.state = {
       LAB: { l: 0, a: 0, b: 0 },
-      CMYK: { c: 0, m: 0, y: 0, k: 0 },
-	  Ratio: {cR: 0, mR: 0, yR: 0, kR: 0, wR: 0}
+	  parts: []
     };
+	
 
     this.updateOutput = this.updateOutput.bind(this);
   }
@@ -26,126 +26,98 @@ class App extends Component {
   handleInputChange() {
 
   }
-
-  // lab => xyz => rgb => cmyk
-  lab2cmyk(lab) {
-	let xyz = lab2xyz(lab)
-	let rgb = xyz2rgb(xyz)
-	let cmyk = rgb2cmyk(rgb);
-	console.log("xyz", xyz)
-	console.log("rgb",rgb)
-	console.log("cmyk",cmyk)
-    return cmyk;
-  }
-  /*
-  lab2xyz(lab){
-	let var_Y = ( lab[0] + 16 ) / 116
-	let var_X = lab[1] / 500 + var_Y
-	let var_Z = var_Y - lab[2] / 200
-
-	if ( Math.pow(var_Y,3)  > 0.008856 )
-		var_Y = Math.pow(var_Y,3)
-	else
-		var_Y = ( var_Y - 16 / 116 ) / 7.787
-	if ( Math.pow(var_X,3)  > 0.008856 )
-		var_X = Math.pow(var_X,3)
-	else
-		var_X = ( var_X - 16 / 116 ) / 7.787
-	if ( Math.pow(var_Z,3)  > 0.008856 )
-		var_Z = Math.pow(var_Z,3)
-	else
-		var_Z = ( var_Z - 16 / 116 ) / 7.787
-
-	X = var_X * Reference-X
-	Y = var_Y * Reference-Y
-	Z = var_Z * Reference-Z
-	return [X, Y, Z];
-	}
-  */
-
+  
   updateOutput() {
     const { l, a, b } = this.state.LAB;//extract lab values from state
-    const self = this;
-    const cmykOutput = {//initialize an object for our cmykOutput
-      c: 0, m: 0, y: 0, k: 0
-    };
-    const ratioOutput = {//initialize an object for our ratioOutput
-      cR: 0, mR: 0, yR: 0, kR: 0, wR: 0
-    };
-
-    const cmyk = this.lab2cmyk([l, a, b]).map(n => self.round(n));
-    let gcd;
-    let black;
-    let white;
-
-    cmyk[0] = Math.floor(cmyk[0]);
-    cmyk[1] = Math.floor(cmyk[1]);
-    cmyk[2] = Math.floor(cmyk[2]);
-    cmyk[3] = Math.floor(cmyk[3]);
-
-    cmykOutput.c = Math.floor(cmyk[0]);
-    cmykOutput.m = Math.floor(cmyk[1]);
-    cmykOutput.y = Math.floor(cmyk[2]);
-    cmykOutput.k = Math.floor(cmyk[3]);
-
-    if (cmyk[3] > 50) {
-      black = (Math.floor(cmyk[3]) - 50)*2;
-      gcd = this.gcd_more_than_two_numbers([...cmyk, black]);
-    } else if (cmyk[3] < 50) {
-    	white =  100 - Math.ceil(cmyk[3]);
-    	gcd = this.gcd_more_than_two_numbers([...cmyk, white]);
-    } else {
-      white = 1;
-      black = 1;
-      gcd = this.gcd_more_than_two_numbers([...cmyk, white, black]);
-    }
-
-    //gcd = this.gcd_more_than_two_numbers([cmyk[0],cmyk[1],cmyk[2],cmyk[3]]);
-    ratioOutput.cR = Math.floor(cmyk[0])/gcd;
-    ratioOutput.mR = Math.floor(cmyk[1])/gcd;
-    ratioOutput.yR = Math.floor(cmyk[2])/gcd;
-    ratioOutput.kR = Math.floor(black)/gcd;
-		ratioOutput.wR = Math.floor(white)/gcd;
-
-
-    this.setState({CMYK: cmykOutput, Ratio: ratioOutput});
+	let wantedColor = {L: l || 0, A: a || 0, B: b || 0, parts : 0};
+	let partsCount = {};
+	//wantedColor = {L : 72.98, A : -36.06, B : 49.12, parts : 0};
+	let lowest = findLowest(wantedColor);//this should be a color object
+	partsCount[lowest.name] = 1;
+	let delta = deltaE(wantedColor, lowest);
+	console.log("\nStarting dE: " + delta);	
+	
+	let sumL = lowest.L, sumA = lowest.A, sumB = lowest.B;
+	let num = 1;//number of		
+	let currColor = {L:(sumL/num), A:(sumA/num), B:(sumB/num), parts : 0};	
+	let ctr = 0; //this is purely for testing to make sure something doesn’t run infinitely
+	
+	//now we will go through the process of trying to get under delta e = 7
+	
+	do{				
+		delta = deltaE(wantedColor, currColor);
+	
+		//go through color list seeing if something helps lower delta E
+		for(let c in gloss){
+			let tempL = (sumL + gloss[c].L);	
+			let tempA = (sumA + gloss[c].A);	
+			let tempB = (sumB + gloss[c].B);	
+			let tempColor = {L:(tempL/(num + 1)), A:(tempA/(num + 1)), B:(tempB/(num + 1)), parts:0};
+			let tempDelta = deltaE(wantedColor, tempColor);	
+	
+			//if something helps, apply it again
+			if(tempDelta < delta){
+				if(partsCount.hasOwnProperty(gloss[c].name)){
+					partsCount[gloss[c].name]++;
+				}else{
+					partsCount[gloss[c].name] = 1;
+				}				
+				sumL += gloss[c].L;	
+				sumA += gloss[c].A;	
+				sumB += gloss[c].B;	
+				ctr++;	
+				num++;	
+				let cond = 1;	
+				delta = tempDelta;
+	
+				while (cond){
+					tempL += gloss[c].L;	
+					tempA += gloss[c].A;	
+					tempB += gloss[c].B;		
+					tempColor = {L:(tempL/(num + 1)), A:(tempA/(num + 1)), B:(tempB/(num + 1)), parts:0};
+					let tempDelta2  = deltaE(wantedColor, tempColor);
+	
+					//keep applying if it works, else leave loop	
+					if(tempDelta2 < tempDelta){//tempDelta < delta
+						if(partsCount.hasOwnProperty(gloss[c].name)){
+							partsCount[gloss[c].name]++;
+						}else{
+							partsCount[gloss[c].name] = 1;
+						}	
+						sumL += gloss[c].L;	
+						sumA += gloss[c].A;	
+						sumB += gloss[c].B;	
+						num++;	
+						ctr++;	
+						tempDelta = tempDelta2;	
+						delta = tempDelta2;	
+					}else	
+						cond = 0;	
+				}	
+			}	
+		}	
+		ctr++;	
+	}while(delta >= 7 && ctr < 10000);
+	
+	console.log("Run Count: " + ctr );
+	
+	//for now, i didn't add the part where we add the base color again after each iteration
+	//Don't we not have to do this as we add it in through the loops anyway?
+	
+	//now we will add white or black to see if that helps.  
+	
+	//i dont know the values of the black or white that we are using so we could add that later
+	
+	//hopefully, you get the jist of how i test and add a color
+	
+	console.log("Current Color: " + currColor.L + " " + currColor.A + " " + currColor.B);
+	console.log("dE: " + deltaE(wantedColor, currColor));
+	let parts = [];
+	for(let name in partsCount){
+		parts.push({name, parts:partsCount[name]});
+	};
+	this.setState({parts});
   }
-  round(a){
-	if(a%5 < 3)
-		a = a - (a%5);
-	else
-		a = a + (5 - a%5);
-	return a;
-  }
-  //https://www.w3resource.com/javascript-exercises/javascript-math-exercise-9.php
-  gcd_more_than_two_numbers(input) {
-  if (toString.call(input) !== "[object Array]")
-        return  false;
-  var len, a, b;
-	len = input.length;
-	if ( !len ) {
-		return null;
-	}
-	a = input[ 0 ];
-	for ( var i = 1; i < len; i++ ) {
-		b = input[ i ];
-		a = this.gcd_two_numbers( a, b );
-	}
-	return a;
-}
-
-gcd_two_numbers(x, y) {
-  if ((typeof x !== 'number') || (typeof y !== 'number'))
-    return false;
-  x = Math.abs(x);
-  y = Math.abs(y);
-  while(y) {
-    var t = y;
-    y = x % y;
-    x = t;
-  }
-  return x;
-}
 
   componentDidUpdate() {
     this.updateOutput();
@@ -156,13 +128,11 @@ gcd_two_numbers(x, y) {
   }
 
   render() {
+	  console.log(this.state.parts);
     const self = this;
-    const { c, m, y, k } = this.state.CMYK;
-    const { cR, mR, yR, kR, wR } = this.state.Ratio;
-
     //use this to display the color
-    const rgb = cmyk2rgb([c, m, y, k]);
-
+	const {l, a, b} = this.state.LAB;
+	const rgb = xyz2rgb(lab2xyz([l, a, b]));
     return (
       <div className='App'>
         <header>
@@ -178,24 +148,15 @@ gcd_two_numbers(x, y) {
           </div>
         </div>
 
-        <div className={'output'}>
-          <h3>{'CMYK Values'}</h3>
-          <div>
-            <Value min={0} max={100} label={'Cyan:'} value={c}/>
-            <Value min={0} max={100} label={'Magenta:'} value={m}/>
-            <Value min={0} max={100} label={'Yellow:'} value={y}/>
-            <Value min={0} max={100} label={'Black:'} value={k}/>
-          </div>
-        </div>
 		<div className={'output'}>
           <h3>{'Mix Ratio'}</h3>
-          <div>
-            {cR>0?<div>{`${cR} part(s) Cyan`}</div>:null}
-            {mR>0?<div>{`${mR} part(s) Magenta`}</div>:null}
-            {yR>0?<div>{`${yR} part(s) Yellow`}</div>:null}
-            {kR>0?<div>{`${kR} part(s) Black`}</div>:null}
-            {wR>0?<div>{`${wR} part(s) White`}</div>:null}
-          </div>
+			{this.state.parts.map(color => {
+          return (
+		  <span key={color.name}>
+            {color.parts} part(s) {color.name} 
+          </span>)
+			})}
+			
         </div>
       </div>
     );
