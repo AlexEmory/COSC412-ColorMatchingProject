@@ -15,10 +15,15 @@ export default function Value(props) {
   }
 
   function handleChange(event) {
-    const value = parseInt(event.target.value);
+    let value = parseInt(event.target.value);
+
+    if (value > max) value = max;
+    if (value < min) value = min;
+
     props.onChange(value);
   };
-  
+
+
   return (
     <div className={'value'}>
       <label>{props.label}</label>
