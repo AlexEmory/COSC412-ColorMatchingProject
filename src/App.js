@@ -3,7 +3,7 @@ import './App.css';
 
 import lab2xyz from 'pure-color/convert/lab2xyz';
 import xyz2rgb from 'pure-color/convert/xyz2rgb';
-import {deltaE , findLowest} from './painMixing';
+import {deltaE , findLowest, isBetter, sameSign} from './painMixing';
 import {gloss} from './colorList';
 
 import Value from './components/Value';
@@ -28,85 +28,139 @@ class App extends Component {
 
   }
   
-  updateOutput() {
+  updateOutput() {//V2
     const { l, a, b } = this.state.LAB;//extract lab values from state
 	const {limit} = this.state.eLimit;//extract deltaE limit from state
 	let wantedColor = {L: l || 0, A: a || 0, B: b || 0, parts : 0};
 	let partsCount = {};
 	let eLimit = limit;
-	//wantedColor = {L : 72.98, A : -36.06, B : 49.12, parts : 0};
+	//wantedColor = {L : 72.98, A : -36.06, B : 49.12, parts : 0};//sublime green
+	//wantedColor = {L : 69.23, A : -29.71, B : 39.76, parts : 0};//1 - Turquoise : 1 - yellow
+	//wantedColor = {L : 60.28, A : 42.92, B : 46.78, parts : 0};//1 - Magenta : 1 - Yellow
+	//wantedColor = {L : 53.72, A : 12.69, B : -13.04, parts : 0};//1 - Magenta : 1 - Turquoise
 	let lowest = findLowest(wantedColor);//this should be a color object
 	partsCount[lowest.name] = 1;
 	let delta = deltaE(wantedColor, lowest);
-	console.log("\nStarting dE: " + delta);	
+	console.log("\nStarting Color: " + lowest.name);
+	console.log("Starting dE: " + delta);	
 	
 	let sumL = lowest.L, sumA = lowest.A, sumB = lowest.B;
-	let num = 1;//number of		
-	let currColor = {L:(sumL/num), A:(sumA/num), B:(sumB/num), parts : 0};	
+	let currColor = {L:(sumL), A:(sumA), B:(sumB), parts : 0};	
 	let ctr = 0; //this is purely for testing to make sure something doesn’t run infinitely
+	let tempColor, tempL, tempA, tempB;
 	
-	do{				
+	//do{	//V2
 		delta = deltaE(wantedColor, currColor);
-	
+		
 		//go through color list seeing if something helps lower delta E
-		for(let c in gloss){
-			let tempL = (sumL + gloss[c].L);	
-			let tempA = (sumA + gloss[c].A);	
-			let tempB = (sumB + gloss[c].B);	
-			let tempColor = {L:(tempL/(num + 1)), A:(tempA/(num + 1)), B:(tempB/(num + 1)), parts:0};
-			let tempDelta = deltaE(wantedColor, tempColor);	
+		for(let color in gloss){
+			tempL = (sumL + gloss[color].L);	
+			tempA = (sumA + gloss[color].A);	
+			tempB = (sumB + gloss[color].B);	
+			tempColor = {L:(tempL/2), A:(tempA/2), B:(tempB/2), parts:0};
 	
 			//if something helps, apply it again
-			if(!(delta <= eLimit) && tempDelta < delta){
-				if(partsCount.hasOwnProperty(gloss[c].name)){
-					partsCount[gloss[c].name]++;
+			if(!(delta <= eLimit) && isBetter(wantedColor, tempColor, currColor)){
+				if(partsCount.hasOwnProperty(gloss[color].name)){
+					partsCount[gloss[color].name]++;
 				}else{
-					partsCount[gloss[c].name] = 1;
+					partsCount[gloss[color].name] = 1;
 				}				
-				sumL += gloss[c].L;	
-				sumA += gloss[c].A;	
-				sumB += gloss[c].B;	
-				ctr++;	
-				num++;	
+				sumL += gloss[color].L;	
+				sumA += gloss[color].A;	
+				sumB += gloss[color].B;	
+				delta = deltaE(wantedColor, currColor);
 				let cond = 1;	
-				delta = tempDelta;
 	
-				while (cond){
-					tempL += gloss[c].L;	
-					tempA += gloss[c].A;	
-					tempB += gloss[c].B;		
-					tempColor = {L:(tempL/(num + 1)), A:(tempA/(num + 1)), B:(tempB/(num + 1)), parts:0};
-					let tempDelta2  = deltaE(wantedColor, tempColor);
+				while (!(delta <= eLimit) && cond){
+					tempL += gloss[color].L;	
+					tempA += gloss[color].A;	
+					tempB += gloss[color].B;		
+					tempColor = {L:(tempL/2), A:(tempA/2), B:(tempB/2), parts:0};
 	
 					//keep applying if it works, else leave loop	
-					if(tempDelta2 < tempDelta){//tempDelta < delta
-						if(partsCount.hasOwnProperty(gloss[c].name)){
-							partsCount[gloss[c].name]++;
+					if(isBetter(wantedColor, tempColor, currColor)){
+						if(partsCount.hasOwnProperty(gloss[color].name)){
+							partsCount[gloss[color].name]++;
 						}else{
-							partsCount[gloss[c].name] = 1;
+							partsCount[gloss[color].name] = 1;
 						}	
-						sumL += gloss[c].L;	
-						sumA += gloss[c].A;	
-						sumB += gloss[c].B;	
-						num++;	
-						ctr++;	
-						tempDelta = tempDelta2;	
-						delta = tempDelta2;	
+						sumL += gloss[color].L;	
+						sumA += gloss[color].A;	
+						sumB += gloss[color].B;
+						delta = deltaE(wantedColor, currColor);	
 					}else	
 						cond = 0;	
 				}	
 			}	
-		}	
-		ctr++;	
-	}while((delta >= eLimit) && ctr < 100);
+		}
+	//}while((delta >= eLimit) && ctr < 1);
+	
+	if(delta > eLimit){
+		partsCount = {};
+		let tempCount = {};
+		let mix;
+		let tempMix;
+		let firstB = 1;
+		for(let A in gloss){
+			for(let B in gloss){
+				if(firstB){
+					mix  = {L:(gloss[A].L+gloss[B].L)/2, 
+						A:(gloss[A].A+gloss[B].A)/2, 
+						B:(gloss[A].B+gloss[B].B)/2};
+					if(deltaE(wantedColor, mix) < delta){					
+						if(sameSign(wantedColor.L, mix.L) 
+							&& sameSign(wantedColor.A, mix.A) 
+							&& sameSign(wantedColor.B, mix.B)){
+							if(tempCount.hasOwnProperty(gloss[A].name)){
+								partsCount[gloss[A].name]++;
+							}else{
+								partsCount[gloss[A].name] = 1;
+							}
+							if(partsCount.hasOwnProperty(gloss[B].name)){
+								partsCount[gloss[B].name]++;
+							}else{
+								partsCount[gloss[B].name] = 1;
+							}
+							currColor = mix;
+							delta = deltaE(wantedColor, mix);
+							firstB = 0;
+						}
+					}
+				}else if(!firstB){
+					tempMix  = {L:(gloss[A].L+gloss[B].L)/2, 
+						A:(gloss[A].A+gloss[B].A)/2, 
+						B:(gloss[A].B+gloss[B].B)/2};
+					if(deltaE(wantedColor, tempMix) < delta){					
+						if(sameSign(wantedColor.L, tempMix.L) 
+							&& sameSign(wantedColor.A, tempMix.A) 
+							&& sameSign(wantedColor.B, tempMix.B)){
+							if(tempCount.hasOwnProperty(gloss[A].name)){
+								tempCount[gloss[A].name]++;
+							}else{
+								tempCount[gloss[A].name] = 1;
+							}
+							if(tempCount.hasOwnProperty(gloss[B].name)){
+								tempCount[gloss[B].name]++;
+							}else{
+								tempCount[gloss[B].name] = 1;
+							}
+							if(deltaE(wantedColor, tempMix) < deltaE(wantedColor, mix)){
+								partsCount = tempCount;
+								currColor = tempMix;
+								delta = deltaE(wantedColor, tempMix);
+							}
+						}
+					}	
+				}
+				ctr++;
+				if(delta < eLimit)
+					break;
+			}
+		}
+	}
 	
 	console.log("Run Count: " + ctr );
-	
-	//for now, i didn't add the part where we add the base color again after each iteration
-	//Don't we not have to do this as we add it in through the loops anyway?	
-	//now we will add white or black to see if that helps.  	
-	//i dont know the values of the black or white that we are using so we could add that later	
-	//hopefully, you get the jist of how i test and add a color
 	
 	console.log("Current Color: " + currColor.L + " " + currColor.A + " " + currColor.B);
 	console.log("dE: " + deltaE(wantedColor, currColor));
@@ -156,7 +210,7 @@ class App extends Component {
 		
 		<div className={'output'}>
           <h3>{'Mix Ratio'}</h3>
-			dE of mixture: {finalDE}
+			  dE of mixture: {finalDE}
 		  <div>
 			{this.state.parts.map(color => {
           return (

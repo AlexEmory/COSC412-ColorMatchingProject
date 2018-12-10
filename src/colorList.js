@@ -3,260 +3,260 @@ export let gloss = {//export
         name : "LightBlue",
         L : 51.31,
         A : -12.79,
-        B : -42,
-        
+        B : -42.00,
+        Parts: 0
     },
     BrightBlue : {
         name : "BrightBlue",
         L : 38.5,
         A : -6.5,
         B : -39.53,
-        
+        Parts: 0
     },
     DarkBlue : {
         name : "DarkBlue",
         L : 28.7,
         A : -0.2,
         B : -39.35,
-        
+        Parts: 0
     },
     Turquoise : {
         name : "Turquoise",
-        L : 68.84,
-        A : -36.98,
-        B : -18.41,
-        
+        L : 63.05,
+        A : -35.79,
+        B : -17.65,
+        Parts: 0
         },
     Gray : {
         name : "Gray",
         L : 47.66,
         A : -3.28,
         B : -4.81,
-        
+        Parts: 0
         },
     SemiGlossBLK : {
         name : "SemiGlossBLK",
         L : 0,
         A : 0,
         B : 0,
-        
+        Parts: 0
         },
      White : {
         name : "White",
         L : 95.13,
         A : -0.49,
-        B : 6.19,
-        
+        B : 1.81,
+        Parts: 0
         },
     Green : {
         name : "Green",
         L : 51.82,
         A : -47.88,
         B : 32.96,
-        
+        Parts: 0
         },
     DarkRed : {
         name : "DarkRed",
         L : 37.27,
         A : 54.14,
         B : 35.22,
-        
+        Parts: 0
         },
     Red : {
         name : "Red",
         L : 47.96,
         A : 70.19,
         B : 45.95,
-        
+        Parts: 0
         },
     SublimeGreen : {
          name : "SublimeGreen",
          L : 72.98,
          A : -36.06,
          B : 49.12,
-         
+         Parts: 0
          },
     Caramel : {
         name : "Caramel",
         L : 65.57,
         A : 24.42,
         B : 65.13,
-        
+        Parts: 0
         },
     Yellow : {
         name : "Yellow",
-        L : 78.48,
-        A : 19.46,
-        B : 78.02,
-        
+        L : 76.17,
+        A : 24.67,
+        B : 88.96,
+        Parts: 0
         },
     LightYellow : {
         name : "LightYellow",
         L : 93.04,
         A : -7.23,
         B : 86.58,
-        
+        Parts: 0
         },
     Sunburst : {
         name : "Sunburst",
         L : 50.79,
         A : 59.62,
         B : 53.41,
-        
+        Parts: 0
         },
     Cream : {
         name : "Cream",
         L : 81.40,
         A : 19.51,
         B : 31.59,
-        
+        Parts: 0
         },
     LightIvory : {
         name : "LightIvory",
         L : 82.74,
         A : 6.19,
         B : 26.66,
-        
+        Parts: 0
         },
     SandBEige : {
         name : "SandBEige",
         L : 53.19,
         A : 9.03,
         B : 17.69,
-        
+        Parts: 0
         },
     Honey : {
         name : "Honey",
         L : 77.39,
         A : 19.69,
         B : 70.57,
-        
+        Parts: 0
         },
     Tangerine : {
         name : "Tangerine",
         L : 68.61,
         A : 37.43,
         B : 69.04,
-        
+        Parts: 0
         },
     Orange : {
         name : "Orange",
         L : 58.80,
         A : 57.09,
         B : 60.24,
-        
+        Parts: 0
         },
     LightBrown : {
         name : "LightBrown",
         L : 26.93,
         A : 28.11,
         B : 38.06,
-        
+        Parts: 0
         },
     Purple : {
         name : "Purple",
         L : 65.18,
         A : 2.24,
         B : -22.83,
-        
+        Parts: 0
         },
     BrightGrape : {
         name : "BrightGrape",
         L : 24.10,
         A : 35.36,
         B : -43.94,
-        
+        Parts: 0
         },
     Brown : {
         name : "Brown",
         L : 24.05,
         A : 31.83,
         B : 35.18,
-        
+        Parts: 0
         },
     Wood : {
         name : "Wood",
         L : 54.41,
         A : 25.57,
         B : 30.84,
-        
+        Parts: 0
         },
     Black : {
         name : "Black",
-        L : 0.00,
-        A : 0.00,
-        B : 0.00,
-        
+        L : 6.14,
+        A : 0.14,
+        B : 0.21,
+        Parts: 0
         },
     Maroon : {
         name : "Maroon",
         L : 31.11,
         A : 54.94,
         B : 8.60,
-        
+        Parts: 0
         },
     Magenta : {
         name : "Magenta",
-        L : 55.34,
-        A : 70.21,
-        B : 10.83,
-        
+        L : 44.40,
+        A : 61.18,
+        B : 4.61,
+        Parts: 0
         },
     HotPink : {
         name : "HotPink",
         L : 54.19,
         A : 68.92,
         B : -9.58,
-        
+        Parts: 0
         },
     Lilac : {
         name : "Lilac",
         L : 46.23,
         A : 15.13,
         B : -29.30,
-        
+        Parts: 0
         },
     BrightLime : {
         name : "BrightLime",
         L : 67.43,
         A : -32.39,
         B : 53.95,
-        
+        Parts: 0
         },
     BrightTeal : {
         name : "BrightTeal",
         L : 43.65,
         A : -28.06,
         B : -8.92,
-        
+        Parts: 0
         },
     BrightRed : {
         name : "BrightRed",
         L : 53.59,
         A : 69.34,
         B : 55.81,
-        
+        Parts: 0
         },
     Chrome : {
         name : "Chrome",
         L : 67.91,
         A : -2.78,
         B : 1.29,
-        
+        Parts: 0
         },
     ComOrange : {
         name : "ComOrange",
         L : 57.03,
         A : 61.73,
         B : 58.54,
-        
+        Parts: 0
         },
     BugYellow : {
         name : "BugYellow",
         L : 91.52,
         A : -4.39,
         B : 85.07,
-        
+        Parts: 0
         }
     }
     export let flat = {
