@@ -61,18 +61,17 @@ class App extends Component {
 				}else{
 					partsCount[gloss[color].name] = 1;
 				}				
-				sumL += gloss[color].L;	
-				sumA += gloss[color].A;	
-				sumB += gloss[color].B;	
+				sumL = (gloss[color].L + sumL)/2;	
+				sumA = (gloss[color].A + sumA)/2;	
+				sumB = (gloss[color].B + sumB)/2;
+				currColor = {L:(sumL), A:(sumA), B:(sumB), parts : 0};
 				delta = deltaE(wantedColor, currColor);
 				let cond = 1;	
-	
 				while (!(delta <= eLimit) && cond){
 					tempL += gloss[color].L;	
 					tempA += gloss[color].A;	
 					tempB += gloss[color].B;		
 					tempColor = {L:(tempL/2), A:(tempA/2), B:(tempB/2), parts:0};
-	
 					//keep applying if it works, else leave loop	
 					if(isBetter(wantedColor, tempColor, currColor)){
 						if(partsCount.hasOwnProperty(gloss[color].name)){
@@ -80,9 +79,10 @@ class App extends Component {
 						}else{
 							partsCount[gloss[color].name] = 1;
 						}	
-						sumL += gloss[color].L;	
-						sumA += gloss[color].A;	
-						sumB += gloss[color].B;
+						sumL = (gloss[color].L + sumL)/2;	
+						sumA = (gloss[color].A + sumA)/2;	
+						sumB = (gloss[color].B + sumB)/2;
+						currColor = {L:(sumL), A:(sumA), B:(sumB), parts : 0};
 						delta = deltaE(wantedColor, currColor);	
 					}else	
 						cond = 0;	
@@ -91,7 +91,8 @@ class App extends Component {
 		}
 	//}while((delta >= eLimit) && ctr < 1);
 	
-	if(delta > eLimit){
+	console.log("secondary mixer");
+	if(delta > eLimit){//V1
 		partsCount = {};
 		let tempCount = {};
 		let mix;
@@ -107,7 +108,7 @@ class App extends Component {
 						if(sameSign(wantedColor.L, mix.L) 
 							&& sameSign(wantedColor.A, mix.A) 
 							&& sameSign(wantedColor.B, mix.B)){
-							if(tempCount.hasOwnProperty(gloss[A].name)){
+							if(partsCount.hasOwnProperty(gloss[A].name)){
 								partsCount[gloss[A].name]++;
 							}else{
 								partsCount[gloss[A].name] = 1;
